@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.5" method="upgrade" group="system">
+	<name>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE</name>
+	<creationDate>July 2020</creationDate>
+	<version>1.0.0</version>
+	<author>Jonathan Brain</author>
+	<authorEmail>brainforge.uk@btinternet.com</authorEmail>
+	<authorUrl>https://www.brainforge.co.uk</authorUrl>
+	<copyright>Copyright (C) 2020 Jonathan Brain - All rights reserved.
+	</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<description>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_XML_DESCRIPTION</description>
+
+	<files>
+		<filename plugin="bftemplatestyleoverride">bftemplatestyleoverride.php</filename>
+		<folder>language</folder>
+	</files>
+
+	<config>
+		<fields
+				name="params"
+			>
+			<fieldset
+					name="basic">
+				<field
+						name="paramname"
+						type="text"
+						required="true"
+						default="bftemplatestyleid"
+						label="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMNAME_LABEL"
+						description="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMNAME_DESC"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+
+	<updateservers>
+		<server type="extension" priority="1" name="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE">
+			https://brainforge.co.uk/component/bfupdater?element=plg_system_bftemplatestyleoverride.xml
+		</server>
+	</updateservers>
+</extension>
