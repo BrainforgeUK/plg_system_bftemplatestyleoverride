@@ -31,39 +31,36 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 		$item = $menu->getActive();
 		$template = null;
 
-		if (!$item)
-		{
+		if (!$item) {
 			$item = $menu->getItem($app->input->getInt('Itemid', null));
 		}
+		$isHome = ($item && $item->home);
 
-		if ($item && $item->home)
-		{
-			$tid = $app->input->getUint($this->params->get('paramname', bftemplateid), 0);
-			if ($tid)
-			{
-				// Load style
-				$db = \JFactory::getDbo();
-				$query = $db->getQuery(true)
-					->select('id, home, template, s.params')
-					->from('#__template_styles as s')
-					->where('s.client_id = 0')
-					->where('e.enabled = 1')
-					->where('s.id = ' . $tid)
-					->join('LEFT', '#__extensions as e ' .
-						'ON e.element=s.template ' .
-						'AND e.type=' . $db->quote('template') . ' ' .
-						'AND e.client_id=s.client_id');
+		$tid = $app->input->getUint($this->params->get('paramname', 'bftemplateid'), null);
 
-				$db->setQuery($query);
-				$template = $db->loadObject();
-				if (!empty($template)) {
-					$template->params = new Registry($template->params);
-				}
+		if ($tid) {
+			// Load style
+			$db = \JFactory::getDbo();
+			$query = $db->getQuery(true)
+				->select('id, home, template, s.params')
+				->from('#__template_styles as s')
+				->where('s.client_id = 0')
+				->where('e.enabled = 1')
+				->where('s.id = ' . $tid)
+				->join('LEFT', '#__extensions as e ' .
+					'ON e.element=s.template ' .
+					'AND e.type=' . $db->quote('template') . ' ' .
+					'AND e.client_id=s.client_id');
+
+			$db->setQuery($query);
+			$template = $db->loadObject();
+			if (!empty($template)) {
+				$template->params = new Registry($template->params);
 			}
 
 			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
 		}
-		else {
+		else if (!$isHome) {
 			$template = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
 		}
 
