@@ -36,7 +36,7 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 		}
 		$isHome = ($item && $item->home);
 
-		$tid = $app->input->getUint($this->params->get('paramname', 'bftemplateid'), null);
+		$tid = $app->input->getUint($this->params->get('paramname', 'bftemplatestyleid'), null);
 
 		if ($tid) {
 			// Load style
