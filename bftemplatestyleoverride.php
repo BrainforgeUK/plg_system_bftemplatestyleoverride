@@ -56,12 +56,18 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 			$template = $db->loadObject();
 			if (!empty($template)) {
 				$template->params = new Registry($template->params);
+				// TODO See https://issues.joomla.org/tracker/joomla-cms/30314
+				// Workaround added for tpl_bfprotostar
+				$template->params->set('styleid', $tid);
 			}
 
 			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
 		}
 		else if (!$isHome) {
 			$template = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
+		}
+		else {
+			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
 		}
 
 		if (!empty($template)) {
