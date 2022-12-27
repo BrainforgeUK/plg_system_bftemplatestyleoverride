@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="plugin" version="4.0" method="upgrade" group="system">
+<extension type="plugin" version="3.5" method="upgrade" group="system">
 	<name>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE</name>
 	<creationDate>July 2020</creationDate>
-	<version>2.0.0</version>
+	<version>4.0.0</version>
 	<author>Jonathan Brain</author>
 	<authorEmail>brainforge.uk@btinternet.com</authorEmail>
 	<authorUrl>https://www.brainforge.co.uk</authorUrl>

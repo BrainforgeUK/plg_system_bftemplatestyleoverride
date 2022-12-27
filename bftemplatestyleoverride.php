@@ -7,10 +7,7 @@
  */
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Filter\OutputFilter;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Uri\Uri;
-use Joomla\Component\Templates\Administrator\Model\StyleModel;
 use Joomla\Registry\Registry;
 
 defined('_JEXEC') or die('Restricted access');
@@ -19,42 +16,33 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 {
 	const TEMPLATESTYLEOVERIDESTATE = "Bftemplatestyleoverride.template";
 
-	protected $app;
-	protected $params;
-
-	/*
-	 */
 	public function __construct(&$subject, $config) {
 		parent::__construct($subject, $config);
-
-		// TODO Needed?
-		//$this->app = Factory::getApplication();
 	}
 
-	/*
-	 */
 	public function onAfterRoute() {
-		if (!$this->app->isClient('site')) {
+		$app = Factory::getApplication();
+		if (!$app->isClient('site')) {
 			return;
 		}
 
 		// Get the id of the active menu item
-		$menu = $this->app->getMenu();
+		$menu = $app->getMenu();
 		$item = $menu->getActive();
-		$template = null;
+		$selectedTemplate = null;
 
 		if (!$item) {
-			$item = $menu->getItem($this->app->input->getInt('Itemid', null));
+			$item = $menu->getItem($app->input->getInt('Itemid', null));
 		}
 		$isHome = ($item && $item->home);
 
-		$tid = $this->app->input->getUint($this->params->get('paramname', 'bftemplatestyleid'), null);
+		$tid = $app->input->getUint($this->params->get('paramname', 'bftemplatestyleid'), null);
 
 		if ($tid) {
 			// Load style
-			$db = Factory::getDbo();
+			$db = \JFactory::getDbo();
 			$query = $db->getQuery(true)
-				->select('id, home, template, s.params')
+				->select('s.id, s.home, s.template, s.params AS styleParams, e.manifest_cache, e.params')
 				->from('#__template_styles as s')
 				->where('s.client_id = 0')
 				->where('e.enabled = 1')
@@ -65,40 +53,40 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 					'AND e.client_id=s.client_id');
 
 			$db->setQuery($query);
-			$template = $db->loadObject();
-			if (!empty($template)) {
-				$template->params = new Registry($template->params);
+			$selectedTemplate = $db->loadObject();
+			if (!empty($selectedTemplate)) {
+				$selectedTemplate->params = new Registry($selectedTemplate->params);
 				// TODO See https://issues.joomla.org/tracker/joomla-cms/30314
 				// Workaround added for tpl_bfprotostar
-				$template->params->set('styleid', $tid);
+				$selectedTemplate->params->set('styleid', $tid);
 			}
 
-			$this->app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
+			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
 		}
 		else if (!$isHome) {
-			$template = $this->app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, $template);
+			$selectedTemplate = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
 		}
 		else {
-			$this->app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
+			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
 		}
 
-		if (!empty($template)) {
-			$this->app->setTemplate($template->template, $template->params);
+		if (!empty($selectedTemplate)) {
+			$selectedTemplate->manifest_cache = json_decode($selectedTemplate->manifest_cache);
+
+			$template = new \stdClass();
+			$template->template = $selectedTemplate->template;
+			$template->inheritable = $selectedTemplate->inheritable;
+			$template->parent = $selectedTemplate->manifest_cache->parent;
+			if (empty($selectedTemplate->styleParams))
+			{
+				$template->params = json_decode($selectedTemplate->params);
+			}
+			else
+			{
+				$template->params = json_decode($selectedTemplate->styleParams);
+			}
+
+			$app->setTemplate($template);
 		}
-	}
-
-	/**
-	 */
-	public function onBeforeRender()
-	{
-		$template = $this->app->getTemplate(true);
-		$styleModel = new StyleModel();
-		$style = $styleModel->getItem($template->id);
-		$style->alias = OutputFilter::stringURLSafe($style->title);
-
-		$base = Uri::base() .  'media/templates/' . $this->template;
-		$doc = Factory::getDocument();
-		$doc->addStyleSheet($base . '/css/' . $style->alias . '.css');
-		$doc->addScript($base . '/js/' . $style->alias . '.js', 'text/javascript');
 	}
 }
