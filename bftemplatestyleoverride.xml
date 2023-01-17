@@ -2,11 +2,11 @@
 <extension type="plugin" version="3.5" method="upgrade" group="system">
 	<name>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE</name>
 	<creationDate>July 2020</creationDate>
-	<version>4.0.0</version>
+	<version>4.1.0</version>
 	<author>Jonathan Brain</author>
 	<authorEmail>brainforge.uk@btinternet.com</authorEmail>
 	<authorUrl>https://www.brainforge.co.uk</authorUrl>
-	<copyright>Copyright (C) 2020-2022 Jonathan Brain - All rights reserved.
+	<copyright>Copyright (C) 2020-2023 Jonathan Brain - All rights reserved.
 	</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<description>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_XML_DESCRIPTION</description>
@@ -30,6 +30,39 @@
 						label="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMNAME_LABEL"
 						description="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMNAME_DESC"
 				/>
+
+				<field
+						name="stylealiases"
+						type="subform"
+						label="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_STYLEALIASES_LABEL"
+						multiple="true"
+						min="1"
+						layout="joomla.form.field.subform.repeatable-table"
+				>
+					<form>
+						<field
+								name="paramvalue"
+								type="text"
+								label="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMVALUE_LABEL"
+								description="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMVALUE_DESC"
+								hint="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_PARAMVALUE_HINT"
+								required="true"
+						/>
+						<field
+								name="styleid"
+								type="sql"
+								label="PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE_STYLEID_LABEL"
+								sql_select="t.id, t.title"
+								sql_from="#__template_styles AS t"
+								sql_order="t.title ASC"
+								key_field="id"
+								value_field="title"
+								required="true"
+						>
+							<option></option>
+						</field>
+					</form>
+				</field>
 			</fieldset>
 		</fields>
 	</config>

@@ -2,7 +2,7 @@
 /**
  * @package   Template style override plugin by Brainforge
  * @author    https://www.brainforge.co.uk
- * @copyright (C) 2020-2022 Jonathan Brain. All rights reserved.
+ * @copyright (C) 2020-2023 Jonathan Brain. All rights reserved.
  * @license   GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
@@ -22,21 +22,35 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 	public function onAfterRoute() {
 		$app = Factory::getApplication();
-		if (!$app->isClient('site')) {
-			return;
+		switch($app->getName())
+		{
+			case 'administrator':
+				$client_id = 1;
+				break;
+			case 'site':
+				$client_id = 0;
+				break;
+			default:
+				return;
 		}
 
-		// Get the id of the active menu item
-		$menu = $app->getMenu();
-		$item = $menu->getActive();
-		$selectedTemplate = null;
-
-		if (!$item) {
-			$item = $menu->getItem($app->input->getInt('Itemid', null));
+		$tid = 0;
+		$talias = $app->input->getCmd($this->params->get('paramname', 'bftemplatestyleid'), null);
+		if (!empty($talias))
+		{
+			$stylealiases = $this->params->get('stylealiases');
+			if (!empty($stylealiases))
+			{
+				foreach($stylealiases as $stylealias)
+				{
+					if ($stylealias->paramvalue == $talias)
+					{
+						$tid = $stylealias->styleid;
+						break;
+					}
+				}
+			}
 		}
-		$isHome = ($item && $item->home);
-
-		$tid = $app->input->getUint($this->params->get('paramname', 'bftemplatestyleid'), null);
 
 		if ($tid) {
 			// Load style
@@ -44,7 +58,7 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 			$query = $db->getQuery(true)
 				->select('s.id, s.home, s.template, s.params AS styleParams, e.manifest_cache, e.params')
 				->from('#__template_styles as s')
-				->where('s.client_id = 0')
+				->where('s.client_id = ' . $client_id)
 				->where('e.enabled = 1')
 				->where('s.id = ' . $tid)
 				->join('LEFT', '#__extensions as e ' .
@@ -54,24 +68,18 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 			$db->setQuery($query);
 			$selectedTemplate = $db->loadObject();
-			if (!empty($selectedTemplate)) {
-				$selectedTemplate->params = new Registry($selectedTemplate->params);
-				// TODO See https://issues.joomla.org/tracker/joomla-cms/30314
-				// Workaround added for tpl_bfprotostar
-				$selectedTemplate->params->set('styleid', $tid);
-			}
 
 			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
 		}
-		else if (!$isHome) {
-			$selectedTemplate = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
-		}
 		else {
-			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
+			$selectedTemplate = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
 		}
 
 		if (!empty($selectedTemplate)) {
-			$selectedTemplate->manifest_cache = json_decode($selectedTemplate->manifest_cache);
+			if (!is_object($selectedTemplate->manifest_cache))
+			{
+				$selectedTemplate->manifest_cache = json_decode($selectedTemplate->manifest_cache);
+			}
 
 			$template = new \stdClass();
 			$template->template = $selectedTemplate->template;
@@ -88,5 +96,7 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 			$app->setTemplate($template);
 		}
+
+		$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
 	}
 }
