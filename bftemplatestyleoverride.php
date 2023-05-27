@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class plgSystemBftemplatestyleoverride extends CMSPlugin
 {
-	const TEMPLATESTYLEOVERIDESTATE = "Bftemplatestyleoverride.template";
+	const TEMPLATESTYLEOVERIDESTATE = "Bftemplatestyleoverride.template.";
 
 	public function __construct(&$subject, $config) {
 		parent::__construct($subject, $config);
@@ -52,6 +52,11 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 			}
 		}
 
+		if (!$tid)
+		{
+			$tid = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE . $client_id, null);
+		}
+
 		if ($tid) {
 			// Load style
 			$db = \JFactory::getDbo();
@@ -68,11 +73,6 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 			$db->setQuery($query);
 			$selectedTemplate = $db->loadObject();
-
-			$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
-		}
-		else {
-			$selectedTemplate = $app->getUserState(self::TEMPLATESTYLEOVERIDESTATE, null);
 		}
 
 		if (!empty($selectedTemplate)) {
@@ -96,7 +96,11 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 			$app->setTemplate($template);
 		}
+		else
+		{
+			$id = 0;
+		}
 
-		$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE, $selectedTemplate);
+		$app->setUserState(self::TEMPLATESTYLEOVERIDESTATE . $client_id, $tid);
 	}
 }

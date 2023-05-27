@@ -2,7 +2,7 @@
 <extension type="plugin" version="3.5" method="upgrade" group="system">
 	<name>PLG_SYSTEM_BFTEMPLATESTYLEOVERRIDE</name>
 	<creationDate>July 2020</creationDate>
-	<version>4.1.1</version>
+	<version>4.2.0</version>
 	<author>Jonathan Brain</author>
 	<authorEmail>brainforge.uk@btinternet.com</authorEmail>
 	<authorUrl>https://www.brainforge.co.uk</authorUrl>
