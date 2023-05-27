@@ -83,7 +83,7 @@ class plgSystemBftemplatestyleoverride extends CMSPlugin
 
 			$template = new \stdClass();
 			$template->template = $selectedTemplate->template;
-			$template->inheritable = $selectedTemplate->inheritable;
+			$template->inheritable = $selectedTemplate->manifest_cache->inheritable;
 			$template->parent = $selectedTemplate->manifest_cache->parent;
 			if (empty($selectedTemplate->styleParams))
 			{
